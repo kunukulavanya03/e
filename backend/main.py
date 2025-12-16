@@ -16,8 +16,8 @@ load_dotenv()
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
-    title="Backend_Api_For_E,_A_Web_Application_Built_With_React_As_The_Frontend_And_Fastapi_+_Sqlalchemy_As_The_Backend_Stack._The_Api_Will_Provide_Endpoints_For_User_Management,_Authentication,_And_Data_Storage. API",
-    description="Complete backend API for backend_api_for_e,_a_web_application_built_with_react_as_the_frontend_and_fastapi_+_sqlalchemy_as_the_backend_stack._the_api_will_provide_endpoints_for_user_management,_authentication,_and_data_storage.",
+    title="E_Backend_Api_Project:_Providing_A_Robust_Api_For_Managing_And_Retrieving_Data_To_Be_Used_By_The_React_Frontend_Application_Built_With_Fastapi_And_Sqlalchemy. API",
+    description="Complete backend API for e_backend_api_project:_providing_a_robust_api_for_managing_and_retrieving_data_to_be_used_by_the_react_frontend_application_built_with_fastapi_and_sqlalchemy.",
     version="1.0.0"
 )
 
@@ -42,11 +42,11 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to Backend_Api_For_E,_A_Web_Application_Built_With_React_As_The_Frontend_And_Fastapi_+_Sqlalchemy_As_The_Backend_Stack._The_Api_Will_Provide_Endpoints_For_User_Management,_Authentication,_And_Data_Storage. API", "status": "running"}
+    return {"message": "Welcome to E_Backend_Api_Project:_Providing_A_Robust_Api_For_Managing_And_Retrieving_Data_To_Be_Used_By_The_React_Frontend_Application_Built_With_Fastapi_And_Sqlalchemy. API", "status": "running"}
 
 @app.get("/health")
 def health_check():
-    return {"status": "healthy", "service": "backend_api_for_e,_a_web_application_built_with_react_as_the_frontend_and_fastapi_+_sqlalchemy_as_the_backend_stack._the_api_will_provide_endpoints_for_user_management,_authentication,_and_data_storage."}
+    return {"status": "healthy", "service": "e_backend_api_project:_providing_a_robust_api_for_managing_and_retrieving_data_to_be_used_by_the_react_frontend_application_built_with_fastapi_and_sqlalchemy."}
 
 # Authentication endpoints
 @app.post("/auth/register")
@@ -81,12 +81,26 @@ def login(user_data: UserLogin, db: Session = Depends(get_db)):
     return {"access_token": access_token, "token_type": "bearer", "user_id": user.id}
 
 # API endpoints
+# Items API endpoints
 @app.get("/api/items")
 def get_items(db: Session = Depends(get_db), current_user: int = Depends(get_current_user)):
-    # Get all items
+    # Get all items for current user
     try:
         items = db.query(Item).filter(Item.owner_id == current_user).all()
         return {"items": items, "total": len(items)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/items/{item_id}")
+def get_item(item_id: int, db: Session = Depends(get_db), current_user: int = Depends(get_current_user)):
+    # Get specific item
+    try:
+        item = db.query(Item).filter(Item.id == item_id, Item.owner_id == current_user).first()
+        if not item:
+            raise HTTPException(status_code=404, detail="Item not found")
+        return {"item": item}
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -100,6 +114,80 @@ def create_item(item_data: ItemCreate, db: Session = Depends(get_db), current_us
         db.refresh(new_item)
         return {"item": new_item, "message": "Item created successfully"}
     except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.put("/api/items/{item_id}")
+def update_item(item_id: int, item_data: ItemUpdate, db: Session = Depends(get_db), current_user: int = Depends(get_current_user)):
+    # Update existing item
+    try:
+        item = db.query(Item).filter(Item.id == item_id, Item.owner_id == current_user).first()
+        if not item:
+            raise HTTPException(status_code=404, detail="Item not found")
+        
+        update_data = item_data.dict(exclude_unset=True)
+        for field, value in update_data.items():
+            setattr(item, field, value)
+        
+        db.commit()
+        db.refresh(item)
+        return {"item": item, "message": "Item updated successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.delete("/api/items/{item_id}")
+def delete_item(item_id: int, db: Session = Depends(get_db), current_user: int = Depends(get_current_user)):
+    # Delete item
+    try:
+        item = db.query(Item).filter(Item.id == item_id, Item.owner_id == current_user).first()
+        if not item:
+            raise HTTPException(status_code=404, detail="Item not found")
+        
+        db.delete(item)
+        db.commit()
+        return {"message": "Item deleted successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+
+# User profile endpoints
+@app.get("/api/profile")
+def get_profile(db: Session = Depends(get_db), current_user: int = Depends(get_current_user)):
+    # Get current user profile
+    try:
+        user = db.query(User).filter(User.id == current_user).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        return {"user": user}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.put("/api/profile")
+def update_profile(user_data: UserBase, db: Session = Depends(get_db), current_user: int = Depends(get_current_user)):
+    # Update user profile
+    try:
+        user = db.query(User).filter(User.id == current_user).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        user.email = user_data.email
+        user.username = user_data.username
+        user.updated_at = datetime.utcnow()
+        
+        db.commit()
+        db.refresh(user)
+        return {"user": user, "message": "Profile updated successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
 
 
