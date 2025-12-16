@@ -6,7 +6,7 @@ Backend API for e
 
 - **Frontend**: React
 - **Backend**: FastAPI + SQLAlchemy
-- **Frontend Source**: GitHub ([Repository](https://github.com/Malleswar-249/E-COMMERCE-WEBSITE))
+- **Frontend Source**: GitHub ([Repository](https://github.com/HimaShankarReddyEguturi/Designecommerceproductui.git))
 
 ## Project Structure
 
@@ -43,18 +43,19 @@ cd backend
 
 ## Features
 
-- User management
-- Authentication
-- Data storage
+- user registration
+- user authentication
+- password reset
+- user account management
 
 ## API Endpoints
 
-- `POST /api/register` - Register a new user
-- `POST /api/login` - Log in to the application
-- `POST /api/password_reset` - Reset user password
-- `GET /api/profile` - View user profile
-- `PUT /api/profile` - Update user profile
-- `GET /api/users` - View all users
+- `POST /api/register` - Create a new user account
+- `POST /api/login` - Authenticate a user
+- `POST /api/reset-password` - Reset a user's password
+- `GET /api/user` - Retrieve a user's account information
+- `PUT /api/user` - Update a user's account information
+- `DELETE /api/user` - Delete a user's account
 
 ## License
 
