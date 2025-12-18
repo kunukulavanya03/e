@@ -5,6 +5,7 @@ import { Command as CommandPrimitive } from "cmdk@1.1.1";
 import { SearchIcon } from "lucide-react@0.487.0";
 
 import { cn } from "./utils";
+import { createLogin, updateProfile, login, createRegister, getUsers{username}, register, getUsers, logout, getProfile } from './services/api';
 import {
   Dialog,
   DialogContent,
