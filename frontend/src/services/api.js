@@ -68,10 +68,6 @@ export const api_login = async (data) => {
   const response = await api.post('/api/login', data);
   return response.data;
 };
-export const api_password_reset = async (data) => {
-  const response = await api.post('/api/password_reset', data);
-  return response.data;
-};
 export const api_profile = async (params = {}) => {
   const response = await api.get('/api/profile', { params });
   return response.data;
@@ -82,6 +78,10 @@ export const api_profile = async (id, data) => {
 };
 export const api_users = async (params = {}) => {
   const response = await api.get('/api/users', { params });
+  return response.data;
+};
+export const api_users_{username} = async (params = {}) => {
+  const response = await api.get('/api/users/{username}', { params });
   return response.data;
 };
 
