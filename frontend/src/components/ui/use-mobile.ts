@@ -1,4 +1,5 @@
 import * as React from "react";
+import { createLogin, updateProfile, login, createRegister, getUsers{username}, register, getUsers, logout, getProfile } from './services/api';
 
 const MOBILE_BREAKPOINT = 768;
 
